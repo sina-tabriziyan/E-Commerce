@@ -1,5 +1,6 @@
 package com.sina.ecommerce.ui.feature.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,9 +25,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
 import com.sina.domain.model.Product
 import org.koin.androidx.compose.koinViewModel
 
@@ -110,19 +112,21 @@ fun ProductItem(product: Product) {
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp)
-            .size(126.dp, height = 144.dp),
+            .size(width = 126.dp, height = 144.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            Log.e("TAG", "ProductImage: ${product.image}")
             AsyncImage(
                 model = product.image,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(96.dp)
+                    .height(96.dp),
+                contentScale = ContentScale.Crop,
+                placeholder = null,
             )
-
             Spacer(modifier = Modifier.size(8.dp))
             Text(
                 text = product.title,
@@ -134,8 +138,6 @@ fun ProductItem(product: Product) {
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
-
-
         }
     }
 }
