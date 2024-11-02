@@ -3,6 +3,7 @@ package com.sina.ecommerce.ui.feature.home
 import android.util.Log
 import android.widget.Space
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,22 +17,30 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.sina.domain.model.Product
@@ -92,19 +101,54 @@ fun ProfileHeader() {
         Image(
             painter = painterResource(id = R.drawable.ic_notification),
             contentDescription = null,
-            modifier = Modifier.align(Alignment.CenterEnd)
+            modifier = Modifier
+                .size(48.dp)
+                .padding(8.dp)
+                .align(Alignment.CenterEnd)
+                .clip(CircleShape)
+                .background(Color.LightGray.copy(alpha = 0.3f)),
+            contentScale = ContentScale.Inside
         )
     }
+}
+
+@Composable
+fun SearchBar(value: String, onTextChanged: (String) -> Unit) {
+    TextField(value = value,
+        onValueChange = onTextChanged,
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(32.dp),
+        leadingIcon = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_notification),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = Color.LightGray.copy(alpha = 0.3f),
+            unfocusedContainerColor = Color.LightGray.copy(alpha = 0.3f)
+        ),
+        placeholder = {
+            Text(text = "Search for product", style = MaterialTheme.typography.bodySmall)
+        }
+    )
+
 }
 
 @Composable
 fun HomeContent(featured: List<Product>, popularProduct: List<Product>) {
     LazyColumn {
         item {
-            Spacer(modifier = Modifier.size(8.dp))
             ProfileHeader()
             Spacer(modifier = Modifier.size(16.dp))
+            SearchBar(value = "") {
 
+            }
         }
         item {
             if (featured.isNotEmpty()) {
@@ -129,9 +173,8 @@ fun HomeProductRow(title: String, products: List<Product>) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.align(
-                    Alignment.CenterStart
-                )
+                modifier = Modifier.align(Alignment.CenterStart),
+
             )
             Text(
                 modifier = Modifier.align(
@@ -172,12 +215,17 @@ fun ProductItem(product: Product) {
             Text(
                 text = product.title,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp),
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = product.priceString,
+                text = "$${product.priceString}",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
