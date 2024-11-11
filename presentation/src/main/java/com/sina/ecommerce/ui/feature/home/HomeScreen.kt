@@ -1,7 +1,6 @@
 package com.sina.ecommerce.ui.feature.home
 
 import android.util.Log
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBarColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -31,6 +29,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +40,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.sina.domain.model.Product
@@ -53,6 +52,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val events by viewModel.events.collectAsState(null)
+    val loading = remember { mutableStateOf(false) }
 
     Scaffold {
         Surface(
@@ -67,7 +67,8 @@ fun HomeScreen(
                     is HomeScreenEvents.ShowProducts -> {
                         HomeContent(
                             featured = event.featured,
-                            popularProduct = event.popularProducts
+                            popularProduct = event.popularProducts,
+                            categories = event.categories
                         )
                     }
                 }
@@ -141,7 +142,12 @@ fun SearchBar(value: String, onTextChanged: (String) -> Unit) {
 }
 
 @Composable
-fun HomeContent(featured: List<Product>, popularProduct: List<Product>) {
+fun HomeContent(
+    featured: List<Product>,
+    popularProduct: List<Product>,
+    categories: List<String>,
+    isLoading: Boolean = false
+) {
     LazyColumn {
         item {
             ProfileHeader()
@@ -150,7 +156,26 @@ fun HomeContent(featured: List<Product>, popularProduct: List<Product>) {
 
             }
         }
+
         item {
+            if (categories.isNotEmpty()) {
+                Spacer(modifier = Modifier.size(6.dp))
+                LazyRow {
+                    items(categories) { category ->
+                        Text(
+                            text = category.replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .padding(8.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+            }
             if (featured.isNotEmpty()) {
                 HomeProductRow(title = "Featured", products = featured)
                 Spacer(modifier = Modifier.size(16.dp))
@@ -175,7 +200,7 @@ fun HomeProductRow(title: String, products: List<Product>) {
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.align(Alignment.CenterStart),
 
-            )
+                )
             Text(
                 modifier = Modifier.align(
                     Alignment.CenterEnd
